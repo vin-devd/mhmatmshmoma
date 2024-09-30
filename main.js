@@ -2,7 +2,12 @@ const mongoose = require('mongoose');
 const fileSchema = require('./schema/azanSchema');
 const moment = require('moment-timezone');
 const { PrayerTimes, CalculationMethod } = require('adhan');
-
+/*
+حمل الملفات دي
+mongoose
+moment-timezone
+adhan
+*/
 mongoose.connect('mongodb+srv://dfhh:YeqlAeFzhChutTbL@id.wy06g.mongodb.net/', {}).then(() => {
     console.log('تم الاتصال بقاعدة البيانات بنجاح!');
 });
