@@ -36,7 +36,7 @@ const countries = {
 module.exports = {
     data: new SlashCommandBuilder()
         .setName('ضبط')
-        .addSubcommand(S => S.setName('الأذان').setDescription('تعيين قناة لإرسال إشعارات الصلاة')
+        .addSubcommand(S => S.setName('الاذان').setDescription('تعيين قناة لإرسال إشعارات الصلاة')
         .setDescription('تعيين قناة لإرسال إشعارات الصلاة')
         .addStringOption(option =>
             option.setName('country')
@@ -81,17 +81,16 @@ module.exports = {
         const country = int.options.getString('country');
         const bot = int.guild.members.me;
         const { lat, lon, timezone } = countries[country];
-
+if (!bot.permissionsIn(channel).has(PermissionsBitField.Flags.ViewChannel)) {
+            return int.editReply({ content: '❌ لا أستطيع رؤية هذه القناة!' });
+        }
         if (!int.member.permissions.has(PermissionsBitField.Flags.ManageChannels)) {
             return int.editReply({ content: '❌ لا تملك صلاحيات كافية لإجراء هذا الأمر!' });
         }
 
-        if (!bot.permissionsIn(channel).has(PermissionsBitField.Flags.ViewChannel)) {
-            return int.editReply({ content: '❌ لا أستطيع رؤية هذه القناة!' });
-        }
         if(!int.guild) return;
         const dataFile = await fileSchema.findOne({ guildId: int.guild.id });
-        if (dataFile) {
+        if (dataFile && bot.permissionsIn(channel).has(PermissionsBitField.Flags.ViewChannel)) {
             const embed = new EmbedBuilder()
                 .setTitle('⚠️ يوجد بيانات الخادم بالفعل')
                 .setDescription('هل تريد تحديث البيانات أم حذفها؟')
@@ -114,6 +113,8 @@ module.exports = {
 
             await int.deleteReply();
             return await int.followUp({ embeds: [embed], ephemeral: true, components: [actionRow] });
+        }else if(dataFile && !bot.permissionsIn(channel).has(PermissionsBitField.Flags.ViewChannel)){
+             return int.editReply({ content: '❌ لا أستطيع رؤية هذه القناة!' });
         }
 
         function pray(coordinates, timezone) {
