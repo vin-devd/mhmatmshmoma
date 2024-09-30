@@ -1,12 +1,4 @@
-const { Client, ActivityType, Collection, ButtonBuilder, ButtonStyle, ActionRowBuilder, EmbedBuilder, Colors } = require('discord.js');
-require('dotenv').config();
-const token = process.env.TOKEN;
-const clientId = process.env.CLIENTID;
-const { REST } = require('@discordjs/rest');
 const mongoose = require('mongoose');
-const { Routes } = require('discord-api-types/v9');
-const { log } = require('console');
-const { readdirSync } = require('fs');
 const fileSchema = require('./schema/azanSchema');
 const moment = require('moment-timezone');
 const { PrayerTimes, CalculationMethod } = require('adhan');
@@ -15,45 +7,6 @@ mongoose.connect('mongodb+srv://dfhh:YeqlAeFzhChutTbL@id.wy06g.mongodb.net/', {}
     console.log('تم الاتصال بقاعدة البيانات بنجاح!');
 });
 
-const bot = new Client({
-    intents: 65123,
-});
-bot.login(token);
-const commands = [];
-bot.commands = new Collection();
-const files = readdirSync('./cmds').filter(f => f.endsWith('.js'));
-
-for (let file of files) {
-    const command = require(`./cmds/${file}`);
-    commands.push(command.data.toJSON());
-    bot.commands.set(command.data.name, command);
-}
-
-(async () => {
-    try {
-        const rest = new REST({ version: "9" }).setToken(token);
-        await rest.put(Routes.applicationCommands(clientId), { body: commands });
-        log('تم تحميل الأوامر بنجاح.');
-    } catch (Err) {
-        log(Err);
-    }
-})();
-
-bot.on('interactionCreate', async (int) => {
-    const command = bot.commands.get(int.commandName);
-    if (int.isCommand() && command) {
-        try {
-            await command.execute(int, bot);
-        } catch (err) {
-            log('حدث خطأ أثناء تنفيذ الأمر:', err);
-        }
-    }
-});
-
-bot.on('ready', async () => {
-    bot.user.setPresence({ activities: [{ name: 'Go...', type: ActivityType.Watching }], status: 'dnd' });
-    log('البوت جاهز للعمل!');
-});
 
 bot.on('interactionCreate', async (int) => {
     if (int.isButton()) {
